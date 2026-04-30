@@ -3,10 +3,12 @@ import { GlassCard } from "@/components/shared/glass-card";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { User, Link as LinkIcon, Shield } from "lucide-react";
 
 export default async function SettingsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) redirect("/login");
 
   return (
     <div>
