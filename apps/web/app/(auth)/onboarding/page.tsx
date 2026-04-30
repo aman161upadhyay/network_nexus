@@ -18,7 +18,7 @@ export default function OnboardingPage() {
 
   function next() {
     if (step < STEPS.length - 1) setStep((s) => s + 1);
-    else router.push("/");
+    else router.push("/dashboard");
   }
 
   function connectGoogle() {
@@ -85,7 +85,7 @@ export default function OnboardingPage() {
         )}
 
         {step === 3 && (
-          <Button className="w-full bg-blue-600 hover:bg-blue-500" onClick={() => router.push("/")}>
+          <Button className="w-full bg-blue-600 hover:bg-blue-500" onClick={() => router.push("/dashboard")}>
             Go to my dashboard
           </Button>
         )}

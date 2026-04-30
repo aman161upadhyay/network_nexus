@@ -41,11 +41,11 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const result = await signIn.email({ email, password, callbackURL: "/" });
+      const result = await signIn.email({ email, password, callbackURL: "/dashboard" });
       if (result?.error) {
         setError(result.error.message ?? "Invalid credentials");
       } else {
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (err: unknown) {
       setError((err as Error)?.message ?? "Sign in failed");
@@ -55,7 +55,7 @@ export default function LoginPage() {
   }
 
   async function handleGoogleLogin() {
-    await signIn.social({ provider: "google", callbackURL: "/" });
+    await signIn.social({ provider: "google", callbackURL: "/dashboard" });
   }
 
   return (

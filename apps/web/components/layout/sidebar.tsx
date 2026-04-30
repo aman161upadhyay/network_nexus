@@ -11,7 +11,7 @@ import { signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 const NAV = [
-  { href: "/", icon: Home, label: "Command Center" },
+  { href: "/dashboard", icon: Home, label: "Command Center" },
   { href: "/email", icon: Mail, label: "Email" },
   { href: "/contacts", icon: Users, label: "Contacts" },
   { href: "/graph", icon: Share2, label: "Network Graph" },
@@ -42,7 +42,7 @@ export function Sidebar() {
       {/* Nav items */}
       <nav className="flex-1 space-y-1">
         {NAV.map(({ href, icon: Icon, label }) => {
-          const active = pathname === href || (href !== "/" && pathname.startsWith(href));
+          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link key={href} href={href}>
               <div className={cn(
