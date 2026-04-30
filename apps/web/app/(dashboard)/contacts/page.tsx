@@ -32,7 +32,7 @@ export default function ContactsPage() {
           </div>
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
             className="glass border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-300 bg-transparent"
           >
             <option value="personal_score">Personal Score</option>

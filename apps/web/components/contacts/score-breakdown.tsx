@@ -11,7 +11,7 @@ function Bar({ label, value, color }: { label: string; value: number; color: str
         <span className="text-white font-medium">{value}</span>
       </div>
       <div className="h-1.5 rounded-full bg-white/5">
-        <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${value}%` }} />
+        <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${Math.min(value, 100)}%` }} />
       </div>
     </div>
   );

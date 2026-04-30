@@ -8,13 +8,14 @@ import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { contacts, interactions } from "@/lib/db/schema";
 import { and, eq, desc } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Mail, Link, Calendar, Building2 } from "lucide-react";
 
 export default async function ContactProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth.api.getSession({ headers: await headers() });
-  const userId = session!.user.id;
+  if (!session) redirect("/login");
+  const userId = session.user.id;
 
   const [contact] = await db.select().from(contacts)
     .where(and(eq(contacts.id, id), eq(contacts.userId, userId)));
@@ -71,7 +72,7 @@ export default async function ContactProfilePage({ params }: { params: Promise<{
             {/* Contact details */}
             <GlassCard className="p-4 space-y-3">
               <h3 className="text-slate-400 text-xs font-medium uppercase tracking-wide">Contact Info</h3>
-              {contact.emails.slice(0, 2).map((email) => (
+              {contact.emails.slice(0, 2).filter((email) => email.includes("@")).map((email) => (
                 <div key={email} className="flex items-center gap-2 text-sm">
                   <Mail className="w-3.5 h-3.5 text-slate-500" />
                   <a href={`mailto:${email}`} className="text-slate-300 hover:text-blue-400 truncate">{email}</a>
