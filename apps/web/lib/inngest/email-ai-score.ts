@@ -35,7 +35,10 @@ async function scoreEmail(
   senderRelationshipScore: number
 ): Promise<EmailScoreResult> {
   const vertex = getVertexClient();
-  const model = vertex.preview.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = vertex.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    generationConfig: { responseMimeType: "application/json" },
+  });
 
   const prompt = `You are an email prioritization assistant. Score this email and respond with ONLY valid JSON.
 

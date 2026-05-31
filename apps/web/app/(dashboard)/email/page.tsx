@@ -6,6 +6,7 @@ import { EmailItem } from "@/components/email/email-item";
 import { GlassCard } from "@/components/shared/glass-card";
 import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
 
 const CATEGORIES = [
   { id: undefined as string | undefined, label: "All" },
@@ -102,7 +103,7 @@ export default function EmailPage() {
                 {selectedEmail.bodyHtml ? (
                   <div
                     className="text-slate-300 text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: selectedEmail.bodyHtml }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedEmail.bodyHtml) }}
                   />
                 ) : (
                   <p className="text-slate-300 text-sm">{selectedEmail.bodyPreview}</p>
