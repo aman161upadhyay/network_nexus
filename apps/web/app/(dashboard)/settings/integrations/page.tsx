@@ -5,9 +5,9 @@ import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { connectedAccounts } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { CheckCircle, Plus } from "lucide-react";
-import Link from "next/link";
+import { CheckCircle } from "lucide-react";
 import { redirect } from "next/navigation";
+import { ConnectGoogleButton } from "./connect-google-button";
 
 const INTEGRATIONS = [
   { provider: "google", label: "Gmail & Google", icon: "📧", description: "Email, Contacts, Calendar" },
@@ -50,13 +50,7 @@ export default async function IntegrationsPage() {
                   Connected
                 </div>
               ) : integration.provider === "google" ? (
-                <Link
-                  href="/api/auth/signin/google?callbackURL=/settings/integrations"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Connect
-                </Link>
+                <ConnectGoogleButton />
               ) : (
                 <span className="text-slate-600 text-xs">Coming soon</span>
               )}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GlassCard } from "@/components/shared/glass-card";
 import { Button } from "@/components/ui/button";
+import { signIn } from "@/lib/auth-client";
 
 const STEPS = [
   { id: 1, title: "Connect Gmail", description: "We'll sync your emails, contacts, and calendar to get started.", icon: "📧", required: true },
@@ -21,8 +22,8 @@ export default function OnboardingPage() {
     else router.push("/dashboard");
   }
 
-  function connectGoogle() {
-    window.location.href = "/api/auth/signin/google?callbackURL=/onboarding";
+  async function connectGoogle() {
+    await signIn.social({ provider: "google", callbackURL: "/onboarding" });
   }
 
   const current = STEPS[step];
