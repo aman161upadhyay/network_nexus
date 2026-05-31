@@ -2,10 +2,23 @@ import { inngest } from "./client";
 import { db } from "@/lib/db";
 import { emails, contacts } from "@/lib/db/schema";
 import { eq, isNull, and } from "drizzle-orm";
-import Anthropic from "@anthropic-ai/sdk";
-import { nanoid } from "nanoid";
+import { VertexAI } from "@google-cloud/vertexai";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+function getVertexClient() {
+  const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (credentialsJson) {
+    const credentials = JSON.parse(credentialsJson);
+    return new VertexAI({
+      project: process.env.GOOGLE_CLOUD_PROJECT ?? "nexus-498003",
+      location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
+      googleAuthOptions: { credentials },
+    });
+  }
+  return new VertexAI({
+    project: process.env.GOOGLE_CLOUD_PROJECT ?? "nexus-498003",
+    location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
+  });
+}
 
 interface EmailScoreResult {
   priorityScore: number;
@@ -21,13 +34,10 @@ async function scoreEmail(
   bodyPreview: string,
   senderRelationshipScore: number
 ): Promise<EmailScoreResult> {
-  const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 300,
-    messages: [
-      {
-        role: "user",
-        content: `You are an email prioritization assistant. Score this email and respond with ONLY valid JSON.
+  const vertex = getVertexClient();
+  const model = vertex.preview.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const prompt = `You are an email prioritization assistant. Score this email and respond with ONLY valid JSON.
 
 Email:
 - From: ${fromName} <${fromEmail}>
@@ -48,14 +58,13 @@ Scoring guide:
 - 60-79: Important, should reply within 24h (colleague, job application, meeting request)
 - 40-59: Moderate priority (newsletter from someone you know, FYI email)
 - 20-39: Low priority (automated notification, cold outreach)
-- 0-19: Can ignore or archive (marketing, spam)`,
-      },
-    ],
-  });
+- 0-19: Can ignore or archive (marketing, spam)`;
 
-  const text = message.content[0].type === "text" ? message.content[0].text : "{}";
+  const result = await model.generateContent(prompt);
+  const text = result.response.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+  const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
   try {
-    return JSON.parse(text) as EmailScoreResult;
+    return JSON.parse(cleaned) as EmailScoreResult;
   } catch {
     return { priorityScore: 30, category: "other", summary: subject, needsReply: false };
   }
