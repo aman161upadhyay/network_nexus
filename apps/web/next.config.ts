@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["@neondatabase/serverless", "better-auth", "@google-cloud/vertexai", "googleapis", "google-auth-library"],
+  serverExternalPackages: ["@neondatabase/serverless", "better-auth", "@google-cloud/vertexai", "googleapis", "google-auth-library", "@whiskeysockets/baileys"],
 };
 
 export default nextConfig;

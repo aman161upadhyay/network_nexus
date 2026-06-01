@@ -5,6 +5,9 @@ import { googleContactSync } from "@/lib/inngest/contact-sync";
 import { scoreRecalculate } from "@/lib/inngest/score-recalculate";
 import { emailAiScore } from "@/lib/inngest/email-ai-score";
 import { reminderCheck } from "@/lib/inngest/reminder-check";
+// Phase 2 integrations
+import { whatsappSync } from "@/lib/inngest/whatsapp-sync";
+import { instagramSync } from "@/lib/inngest/instagram-sync";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -15,5 +18,8 @@ export const { GET, POST, PUT } = serve({
     scoreRecalculate,
     emailAiScore,
     reminderCheck,
+    // Phase 2
+    whatsappSync,
+    instagramSync,
   ],
 });

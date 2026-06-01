@@ -8,14 +8,56 @@ import { eq } from "drizzle-orm";
 import { CheckCircle } from "lucide-react";
 import { redirect } from "next/navigation";
 import { ConnectGoogleButton } from "./connect-google-button";
+import { ConnectWhatsAppButton } from "./connect-whatsapp-button";
+import { ConnectInstagramButton } from "./connect-instagram-button";
+import { ConnectLinkedInButton } from "./connect-linkedin-button";
 
 const INTEGRATIONS = [
   { provider: "google", label: "Gmail & Google", icon: "📧", description: "Email, Contacts, Calendar" },
   { provider: "microsoft", label: "Outlook & Microsoft", icon: "📨", description: "Email, Contacts, Calendar (Phase 2)" },
-  { provider: "whatsapp", label: "WhatsApp", icon: "💬", description: "Message sync (Phase 2)" },
-  { provider: "instagram", label: "Instagram", icon: "📸", description: "DM signals (Phase 2)" },
-  { provider: "linkedin", label: "LinkedIn", icon: "💼", description: "Profile import via browser extension" },
+  { provider: "whatsapp", label: "WhatsApp", icon: "💬", description: "Message sync via QR code pairing" },
+  { provider: "instagram", label: "Instagram", icon: "📸", description: "DM signals via Facebook OAuth" },
+  { provider: "linkedin", label: "LinkedIn", icon: "💼", description: "Import contacts from CSV export" },
 ] as const;
+
+function getConnectButton(provider: string) {
+  switch (provider) {
+    case "google": return <ConnectGoogleButton />;
+    case "whatsapp": return <ConnectWhatsAppButton />;
+    case "instagram": return <ConnectInstagramButton />;
+    case "linkedin": return <ConnectLinkedInButton />;
+    default: return <span className="text-slate-600 text-xs">Coming soon</span>;
+  }
+}
+
+function getConnectedLabel(provider: string, account: { accountEmail: string | null; accountName: string | null; lastSyncedAt: Date | null }) {
+  const name = account.accountEmail ?? account.accountName ?? "";
+  const lastSync = account.lastSyncedAt
+    ? `Last synced ${formatTimeAgo(account.lastSyncedAt)}`
+    : "Never synced";
+
+  return (
+    <div className="flex flex-col items-end gap-0.5">
+      <div className="flex items-center gap-1.5 text-green-400 text-xs">
+        <CheckCircle className="w-4 h-4" />
+        Connected
+      </div>
+      {name && <span className="text-slate-600 text-[10px]">{name}</span>}
+      <span className="text-slate-700 text-[10px]">{lastSync}</span>
+    </div>
+  );
+}
+
+function formatTimeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
 export default async function IntegrationsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -40,19 +82,11 @@ export default async function IntegrationsPage() {
               <div className="flex-1">
                 <p className="text-white font-medium text-sm">{integration.label}</p>
                 <p className="text-slate-500 text-xs">{integration.description}</p>
-                {isConnected && account?.accountEmail && (
-                  <p className="text-slate-600 text-xs mt-0.5">{account.accountEmail}</p>
-                )}
               </div>
-              {isConnected ? (
-                <div className="flex items-center gap-1.5 text-green-400 text-xs">
-                  <CheckCircle className="w-4 h-4" />
-                  Connected
-                </div>
-              ) : integration.provider === "google" ? (
-                <ConnectGoogleButton />
+              {isConnected && account ? (
+                getConnectedLabel(integration.provider, account)
               ) : (
-                <span className="text-slate-600 text-xs">Coming soon</span>
+                getConnectButton(integration.provider)
               )}
             </GlassCard>
           );

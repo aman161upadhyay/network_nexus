@@ -209,3 +209,14 @@ export const userSettings = pgTable("user_settings", {
   dormantThresholdDays: integer("dormant_threshold_days").notNull().default(90),
   timezone: text("timezone").notNull().default("UTC"),
 });
+
+export const whatsappAuthState = pgTable("whatsapp_auth_state", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  key: text("key").notNull(),
+  dataEnc: text("data_enc").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("wa_auth_user_key_unique").on(t.userId, t.key),
+  index("wa_auth_user_id_idx").on(t.userId),
+]);
